@@ -1,0 +1,120 @@
+erDiagram
+    wind_farm       ||--o{ turbine             : "размещает"
+    turbine_kind    ||--o{ turbine             : "тип"
+    turbine         ||--o{ component           : "состоит из"
+    component       ||--o{ component           : "вложен в"
+    component_kind  ||--o{ component           : "тип"
+    component       ||--o{ sensor              : "несёт"
+    sensor_kind     ||--o{ sensor              : "тип"
+    sensor          ||--o{ telemetry           : "измеряет"
+    turbine         ||--o{ event               : "порождает"
+    severity        ||--o{ event               : "уровень"
+    turbine         ||--o{ maintenance         : "обслуживается"
+    engineer        ||--o{ maintenance         : "выполняет"
+    maintenance     ||--o{ maintenance_part    : "расходует"
+    part            ||--o{ maintenance_part    : "используется в"
+    turbine         ||--|| turbine_spec        : "имеет характеристики"
+    turbine         ||--o{ turbine_location    : "история размещения"
+    wind_farm       ||--o{ turbine_location    : ""
+
+    wind_farm {
+        int  id PK
+        text code UK
+        text name
+        text region
+        numeric capacity_mw
+        date commissioned
+    }
+    turbine {
+        int  id PK
+        text code UK "WT-01"
+        int  farm_id FK
+        int  kind_id FK
+        text model
+        date commissioned
+    }
+    turbine_kind {
+        int  id PK
+        text code UK "V112"
+        text manufacturer
+        int  rated_power_kw
+        numeric rotor_diameter_m
+    }
+    component {
+        int  id PK
+        int  turbine_id FK
+        int  parent_id FK
+        text code
+        text kind FK
+        text name
+    }
+    component_kind {
+        int  id PK
+        text code UK
+        text name
+    }
+    sensor {
+        int  id PK
+        int  component_id FK
+        text tag "уникален в пределах узла"
+        text kind FK
+        text unit_of_measure
+    }
+    sensor_kind {
+        int  id PK
+        text code UK
+        text name
+        text unit_of_measure
+    }
+    telemetry {
+        timestamptz ts PK
+        int         sensor_id PK, FK
+        numeric     value
+    }
+    event {
+        int         id PK
+        int         turbine_id FK
+        timestamptz ts
+        int         severity_id FK
+        text        message
+    }
+    severity {
+        int  id PK
+        text code UK "info | warning | alarm | unplanned_stop"
+        int  rank
+    }
+    engineer {
+        int  id PK
+        text tab_no UK
+        text full_name
+        text team
+    }
+    part {
+        int  id PK
+        text code UK
+        text name
+        text manufacturer
+    }
+    maintenance {
+        int         id PK
+        int         turbine_id FK
+        int         engineer_id FK
+        timestamptz performed_at
+        text        work_type
+        text        notes
+    }
+    maintenance_part {
+        int maintenance_id PK, FK
+        int part_id        PK, FK
+        int qty "check qty > 0"
+    }
+    turbine_spec {
+        int  turbine_id PK, FK
+        jsonb specs
+    }
+    turbine_location {
+        int         turbine_id PK, FK
+        timestamptz valid_from PK
+        int         farm_id FK
+        timestamptz valid_to "NULL = действует сейчас"
+    }
