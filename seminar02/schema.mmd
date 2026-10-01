@@ -32,6 +32,7 @@ erDiagram
         int  kind_id FK
         text model
         date commissioned
+        timestamptz created_at
     }
     turbine_kind {
         int  id PK
@@ -56,7 +57,7 @@ erDiagram
     sensor {
         int  id PK
         int  component_id FK
-        text tag "уникален в пределах узла"
+        text tag
         text kind FK
         text unit_of_measure
     }
@@ -80,7 +81,7 @@ erDiagram
     }
     severity {
         int  id PK
-        text code UK "info | warning | alarm | unplanned_stop"
+        text code UK
         int  rank
     }
     engineer {
